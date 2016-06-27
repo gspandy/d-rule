@@ -1,7 +1,7 @@
 package com.muziyuchen.drule.zk
 
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
-import org.apache.curator.framework.recipes.cache.PathChildrenCache
+import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.apache.curator.retry.ExponentialBackoffRetry
 
 import scala.collection.mutable
@@ -34,6 +34,14 @@ private[zk] class ZKDrlManager(connectString: String, path: String) {
     }
 
     drls
+  }
+
+  def drlChanged(callback: () => Unit): Unit = {
+    cache.getListenable.addListener(new PathChildrenCacheListener {
+      override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
+        callback
+      }
+    })
   }
 
   def close:Unit = {

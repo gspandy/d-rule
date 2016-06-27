@@ -23,6 +23,12 @@ trait ZKRuleEngine {
   def initZK(connectString: String = "", path: String = "/rule"): Unit = {
     zkDrlManager = new ZKDrlManager(connectString, path)
     zkDrlManager.start
+
+    reload
+    zkDrlManager.drlChanged(reload _)
+  }
+
+  def reload: Unit = {
     val kieHelper = new KieHelper()
     for (drl <- zkDrlManager.getDrls) {
       kieHelper.addContent(drl, ResourceType.DRL)
